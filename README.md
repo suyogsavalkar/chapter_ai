@@ -19,7 +19,7 @@ Just tell Chapter what you want to do, and it will execute tasks across your con
 
 ## Getting Started
 
-Note - Chapter is a fork of Chat-SDK and Vercel.
+Note - Chapter's client is a fork of Chat-SDK built originally by Vercel. We have built and modified the existing functions.
 
 ### Prerequisites
 
