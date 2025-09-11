@@ -19,6 +19,8 @@ Just tell Chapter what you want to do, and it will execute tasks across your con
 
 ## Getting Started
 
+Note - Chapter is a fork of Chat-SDK and Vercel.
+
 ### Prerequisites
 
 - **Node.js** (version 18 or higher)
