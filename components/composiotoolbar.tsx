@@ -43,6 +43,7 @@ const TOOLKIT_AUTH_CONFIG: Record<string, string> = {
   GOOGLECALENDAR: process.env.NEXT_PUBLIC_COMPOSIO_AUTH_GOOGLECALENDAR || "",
   SLACK: process.env.NEXT_PUBLIC_COMPOSIO_AUTH_SLACK || "",
   TODOIST: process.env.NEXT_PUBLIC_COMPOSIO_AUTH_TODOIST || "",
+  EXA: process.env.NEXT_PUBLIC_COMPOSIO_AUTH_EXA || "",
 };
 
 const TOOLBAR_COOKIE_NAME = "toolbar:state";

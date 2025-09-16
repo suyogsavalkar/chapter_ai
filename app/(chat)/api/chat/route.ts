@@ -271,23 +271,38 @@ export async function POST(request: Request) {
         console.log("All tool names:", Object.keys(allTools));
 
         // Sanitize tool names to satisfy Gemini function naming rules
-        // Rules: start with letter or underscore; allowed chars: a-zA-Z0-9_.-; max length 64
+        // Rules: start with letter or underscore; allowed chars: a-zA-Z0-9_; max length 64
+        // Note: Gemini doesn't support dots or hyphens in function names
         const sanitizeName = (name: string) => {
-          let sanitized = name.replace(/[^a-zA-Z0-9_.-]/g, "_");
-          if (!/^[A-Za-z_]/.test(sanitized)) sanitized = `_${sanitized}`;
+          // Replace invalid characters with underscores (no dots or hyphens allowed)
+          let sanitized = name.replace(/[^a-zA-Z0-9_]/g, "_");
 
-          // Handle long names more intelligently
+          // Ensure it starts with a letter or underscore
+          if (!/^[A-Za-z_]/.test(sanitized)) {
+            sanitized = `_${sanitized}`;
+          }
+
+          // Handle long names by truncating intelligently
           if (sanitized.length > 64) {
-            // Try to preserve meaningful parts by truncating from the middle
+            // For very long names, keep the first 30 chars and last 30 chars
             const prefix = sanitized.substring(0, 30);
             const suffix = sanitized.substring(sanitized.length - 30);
             sanitized = `${prefix}__${suffix}`;
 
-            // If still too long, just truncate
+            // If still too long after concatenation, just truncate
             if (sanitized.length > 64) {
               sanitized = sanitized.slice(0, 64);
             }
           }
+
+          // Remove any trailing underscores for cleaner names
+          sanitized = sanitized.replace(/_+$/, "");
+
+          // Ensure we still have a valid name after cleanup
+          if (!sanitized || !/^[A-Za-z_]/.test(sanitized)) {
+            sanitized = "_tool";
+          }
+
           return sanitized;
         };
 
@@ -330,8 +345,39 @@ export async function POST(request: Request) {
           "Total tools after sanitization:",
           Object.keys(safeTools).length
         );
+
+        // Additional validation for Gemini compatibility
+        const finalValidation = Object.keys(safeTools).filter((name) => {
+          const isValid =
+            /^[A-Za-z_][A-Za-z0-9_]*$/.test(name) && name.length <= 64;
+          if (!isValid) {
+            console.error(
+              `❌ Tool name still invalid after sanitization: "${name}"`
+            );
+          }
+          return isValid;
+        });
+
+        if (finalValidation.length !== Object.keys(safeTools).length) {
+          console.error(
+            "Some tools failed final validation - removing invalid tools"
+          );
+          const validTools: Record<string, any> = {};
+          finalValidation.forEach((name) => {
+            validTools[name] = safeTools[name];
+          });
+          Object.assign(safeTools, validTools);
+          Object.keys(safeTools).forEach((key) => {
+            if (!finalValidation.includes(key)) {
+              delete safeTools[key];
+            }
+          });
+        }
+
         console.log("=== TOOL DEBUGGING END ===");
-        const activeToolsSafe = activeTools.map((n) => nameMap.get(n) ?? n);
+        const activeToolsSafe = activeTools
+          .map((n) => nameMap.get(n) ?? n)
+          .filter((name) => safeTools[name]);
 
         console.log("Chat API - Active tools configured:", activeToolsSafe);
         console.log("Chat API - All tools available:", Object.keys(safeTools));

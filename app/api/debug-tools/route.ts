@@ -12,7 +12,7 @@ export async function GET() {
 
   try {
     const userId = session.user.id;
-    const testToolkits = ["gmail", "googlecalendar", "slack", "todoist"];
+    const testToolkits = ["gmail", "googlecalendar", "slack", "googletasks", "exa"];
 
     // Check connected accounts first
     const connectedAccounts = await composio.connectedAccounts.list({

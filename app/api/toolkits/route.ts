@@ -7,11 +7,8 @@ import { ChatSDKError } from "@/lib/errors";
 const SUPPORTED_TOOLKITS = [
   "gmail",
   "googlecalendar",
-  "slack",
-  "todoist",
-  "github",
-  "notion",
-  "linear",
+  "googletasks",
+  'exa',
 ];
 
 export async function GET() {
